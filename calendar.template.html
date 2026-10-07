@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>Claude Code worklog</title>
+  <!-- Schedule-X is pinned to major version 2 (string-based event dates). -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@schedule-x/theme-default@2/dist/index.css">
+  <style>
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", sans-serif; background: #1e1e1e; color: #e6e6e6; }
+    header { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; padding: 8px 16px; }
+    header h1 { font-size: 16px; margin: 0 12px 0 0; }
+    .legend { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; }
+    .swatch { width: 12px; height: 12px; border-radius: 3px; }
+    .generated { margin-left: auto; font-size: 12px; color: #999; }
+    main { display: flex; height: calc(100vh - 48px); }
+    #calendar { flex: 1; min-width: 0; }
+    #detail { width: 360px; padding: 16px; overflow-y: auto; border-left: 1px solid #333; font-size: 13px; }
+    #detail h2 { font-size: 15px; margin-top: 0; }
+    #detail dt { color: #999; margin-top: 8px; }
+    #detail dd { margin: 2px 0 0; white-space: pre-wrap; word-break: break-all; }
+    #detail code { background: #2d2d2d; padding: 2px 4px; border-radius: 3px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Claude Code worklog</h1>
+    <span id="legend"></span>
+    <span class="generated" id="generated"></span>
+  </header>
+  <main>
+    <div id="calendar" class="sx-react-calendar-wrapper"></div>
+    <aside id="detail"><p>イベントをクリックすると詳細を表示します。</p></aside>
+  </main>
+  <script id="worklog-data" type="application/json">__WORKLOG_DATA__</script>
+  <script type="module">
+    import {
+      createCalendar,
+      createViewDay,
+      createViewMonthAgenda,
+      createViewMonthGrid,
+      createViewWeek,
+    } from "https://cdn.jsdelivr.net/npm/@schedule-x/calendar@2/+esm";
+
+    const data = JSON.parse(document.getElementById("worklog-data").textContent);
+    const palette = ["#4f8cff", "#3ecf8e", "#f5a623", "#e85d75", "#a970ff", "#22c3d6", "#c0ca33", "#ff7043"];
+
+    const calendars = {};
+    const legend = document.getElementById("legend");
+    data.projects.forEach((project, i) => {
+      const main = palette[i % palette.length];
+      const colors = { main, container: main + "33", onContainer: "#ffffff" };
+      calendars[project.calendarId] = {
+        colorName: project.calendarId,
+        lightColors: { ...colors, onContainer: "#1e1e1e" },
+        darkColors: colors,
+      };
+      const item = document.createElement("span");
+      item.className = "legend";
+      const swatch = document.createElement("span");
+      swatch.className = "swatch";
+      swatch.style.background = main;
+      item.append(swatch, document.createTextNode(project.name));
+      legend.append(item, document.createTextNode(" "));
+    });
+    document.getElementById("generated").textContent = `generated at ${data.generatedAt}`;
+
+    const eventsById = new Map(data.events.map((e) => [e.id, e]));
+
+    function showDetail(event) {
+      const detail = document.getElementById("detail");
+      detail.replaceChildren();
+      const heading = document.createElement("h2");
+      heading.textContent = event.title;
+      const list = document.createElement("dl");
+      const rows = [
+        ["時間", `${event.start} - ${event.end}`],
+        ["プロジェクト", event.project],
+        ["ブランチ", event.branches.join(", ") || "-"],
+        ["プロンプト数 (この時間帯)", String(event.prompts)],
+        ["最初のプロンプト", event.firstPrompt || "-"],
+        ["再開", `cd ${event.cwd} && claude --resume ${event.sessionId}`],
+      ];
+      for (const [label, value] of rows) {
+        const dt = document.createElement("dt");
+        dt.textContent = label;
+        const dd = document.createElement("dd");
+        if (label === "再開") {
+          const code = document.createElement("code");
+          code.textContent = value;
+          dd.append(code);
+        } else {
+          dd.textContent = value;
+        }
+        list.append(dt, dd);
+      }
+      detail.append(heading, list);
+    }
+
+    const monthGrid = createViewMonthGrid();
+    const calendar = createCalendar({
+      locale: "ja-JP",
+      firstDayOfWeek: 1,
+      isDark: true,
+      views: [monthGrid, createViewWeek(), createViewDay(), createViewMonthAgenda()],
+      defaultView: monthGrid.name,
+      calendars,
+      events: data.events.map(({ id, title, start, end, calendarId }) => ({ id, title, start, end, calendarId })),
+      callbacks: {
+        onEventClick(calendarEvent) {
+          const event = eventsById.get(calendarEvent.id);
+          if (event) showDetail(event);
+        },
+      },
+    });
+    calendar.render(document.getElementById("calendar"));
+  </script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+# Generated data: contains session titles and prompt text, keep it out of history
+sessions.jsonl
+calendar.html
+
+# Leftovers from atomic writes in worklog.py (tempfile.mkstemp)
+tmp*
+
+# Python / tooling caches
+__pycache__/
+*.pyc
+.mypy_cache/
+
+# macOS
+.DS_Store
