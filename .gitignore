@@ -2,12 +2,10 @@
 sessions.jsonl
 calendar.html
 
-# Leftovers from atomic writes in worklog.py (tempfile.mkstemp)
+# Leftovers from atomic writes in worklog.rb (Tempfile.create)
 tmp*
 
-# Python / tooling caches
-__pycache__/
-*.pyc
+# Tooling caches
 .mypy_cache/
 
 # macOS
