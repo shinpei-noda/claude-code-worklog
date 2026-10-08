@@ -2,7 +2,7 @@
 sessions.jsonl
 calendar.html
 
-# Leftovers from atomic writes in worklog.rb (Tempfile.create)
+# Leftovers from atomic writes in lib/worklog/atomic_file.rb (Tempfile.create)
 tmp*
 
 # Tooling caches
