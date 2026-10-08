@@ -10,27 +10,34 @@ ruby ~/.claude/worklog/exe/worklog build  # rebuild the calendar from sessions.j
 open ~/.claude/worklog/output/calendar.html
 ```
 
-`worklog hook` is meant for the Claude Code `SessionEnd` hook. It reads the hook JSON from stdin and adds that session only.
+## Hook setup
 
-## Files
+`worklog hook` reads the `SessionEnd` hook JSON from stdin, adds that session to `sessions.jsonl`, and rebuilds the calendar. Add it to `~/.claude/settings.json`:
 
-Generated files go to `output/`, which is not tracked by Git.
+```json
+{
+  "hooks": {
+    "SessionEnd": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "ruby ~/.claude/worklog/exe/worklog hook"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
 
-- `output/sessions.jsonl`: session summaries; outlives the transcripts Claude Code cleans up
-- `output/calendar.html`: generated calendar page
-- `lib/worklog/templates/calendar.html.erb`: calendar page template
+The hook runs in the session's project directory with the PATH Claude Code was started with, so `ruby` resolves through that PATH and the project's `.ruby-version`. Ruby 3.3 or later is required. If that is not guaranteed, use an absolute path such as `~/.rbenv/versions/3.4.7/bin/ruby`.
 
-## Layout
+Claude Code deletes transcripts after 30 days by default. `sessions.jsonl` keeps the summaries regardless, but you can also keep the transcripts longer:
 
-| Class | Responsibility |
-|---|---|
-| `Worklog::CLI` | Command dispatch (`sync`, `build`, `hook`) |
-| `Worklog::Config` | File locations under `~/.claude` |
-| `Worklog::Transcript` | Summarizes one transcript file into a `Session` |
-| `Worklog::Entry` | One transcript line; extracts the user-typed prompt |
-| `Worklog::Timeline` | Splits activity into segments at idle gaps |
-| `Worklog::Session` | One record of `sessions.jsonl` |
-| `Worklog::Archive` | Loads, merges, and saves `sessions.jsonl` |
-| `Worklog::Calendar` | Renders sessions with the ERB template |
-| `Worklog::AtomicFile` | Writes files via a temporary file and rename |
-| `Worklog::PyCompat` | Python semantics kept for output compatibility with the former Python version |
+```json
+{
+  "cleanupPeriodDays": 365
+}
+```
