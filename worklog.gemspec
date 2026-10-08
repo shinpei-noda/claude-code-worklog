@@ -7,9 +7,10 @@ Gem::Specification.new do |spec|
   spec.version = Worklog::VERSION
   spec.authors = ["Shinpei Noda"]
   spec.summary = "Render Claude Code session history as a calendar"
+  spec.license = "MIT"
   spec.required_ruby_version = ">= 3.3"
 
-  spec.files = Dir["lib/**/*.{rb,erb}", "exe/*", "README.md"]
+  spec.files = Dir["lib/**/*.{rb,erb}", "exe/*", "README.md", "LICENSE"]
   spec.bindir = "exe"
   spec.executables = ["worklog"]
   spec.require_paths = ["lib"]
