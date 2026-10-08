@@ -7,15 +7,17 @@ Render Claude Code session history as a [Schedule-X](https://github.com/schedule
 ```sh
 ruby ~/.claude/worklog/exe/worklog sync   # scan all transcripts and rebuild the calendar
 ruby ~/.claude/worklog/exe/worklog build  # rebuild the calendar from sessions.jsonl only
-open ~/.claude/worklog/calendar.html
+open ~/.claude/worklog/output/calendar.html
 ```
 
 `worklog hook` is meant for the Claude Code `SessionEnd` hook. It reads the hook JSON from stdin and adds that session only.
 
 ## Files
 
-- `sessions.jsonl`: session summaries; outlives the transcripts Claude Code cleans up (not tracked by Git)
-- `calendar.html`: generated calendar page (not tracked by Git)
+Generated files go to `output/`, which is not tracked by Git.
+
+- `output/sessions.jsonl`: session summaries; outlives the transcripts Claude Code cleans up
+- `output/calendar.html`: generated calendar page
 - `lib/worklog/templates/calendar.html.erb`: calendar page template
 
 ## Layout

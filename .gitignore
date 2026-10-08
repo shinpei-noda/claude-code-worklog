@@ -1,9 +1,6 @@
-# Generated data: contains session titles and prompt text, keep it out of history
-sessions.jsonl
-calendar.html
-
-# Leftovers from atomic writes in lib/worklog/atomic_file.rb (Tempfile.create)
-tmp*
+# Generated data (sessions.jsonl, calendar.html, and temporary files from atomic writes).
+# Contains session titles and prompt text, keep it out of history.
+/output/
 
 # Tooling caches
 .mypy_cache/

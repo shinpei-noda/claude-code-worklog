@@ -17,12 +17,17 @@ module Worklog
       File.join(claude_dir, "worklog")
     end
 
+    # Generated files that are not tracked by Git.
+    def output_dir
+      File.join(worklog_dir, "output")
+    end
+
     def archive_path
-      File.join(worklog_dir, "sessions.jsonl")
+      File.join(output_dir, "sessions.jsonl")
     end
 
     def calendar_path
-      File.join(worklog_dir, "calendar.html")
+      File.join(output_dir, "calendar.html")
     end
 
     def template_path
